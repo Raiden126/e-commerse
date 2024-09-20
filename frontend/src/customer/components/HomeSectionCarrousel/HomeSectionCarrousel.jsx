@@ -4,9 +4,8 @@ import HomseSectionCard from "../HomeSectionCard/HomseSectionCard";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import { Button } from "@mui/material";
-import { mens_kurta } from "../../../Data/mens_kurta";
 
-const HomeSectionCarrousel = () => {
+const HomeSectionCarrousel = ({data, sectionName}) => {
   const carouselRef = useRef(null);
   const responsive = {
     0: { items: 1 },
@@ -26,12 +25,13 @@ const HomeSectionCarrousel = () => {
     }
   };
 
-  const items = mens_kurta
+  const items = data
     .slice(0, 10)
     .map((item, index) => <HomseSectionCard key={index} product={item} />);
 
   return (
-    <div className="">
+    <div className="border">
+      <h2 className="text-2xl font-extrabold text-gray-800 py-5">{sectionName}</h2>
       <div className="relative p-5 border">
         <AliceCarousel
           ref={carouselRef}
