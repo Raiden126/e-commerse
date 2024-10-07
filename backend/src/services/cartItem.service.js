@@ -5,10 +5,6 @@ async function updateCartItem(userId, cartItemId, cartItemData) {
   try {
     const item = await findCartItemById(cartItemId);
 
-    if (!item) {
-      throw new Error("cart item not found", cartItemId);
-    }
-
     const user = await userService.findUserById(item.userId);
 
     if (!user) {
@@ -35,13 +31,13 @@ async function removeCartItem(userId, cartItemId) {
   const user = await userService.findUserById(userId);
 
   if (user._id.toString() === cartItem.userId.toString()) {
-    await CartItem.findByIdAndDelete(cartItemId);
+    return await CartItem.findByIdAndDelete(cartItemId);
   }
   throw new Error("you can remove another user's item");
 }
 
 async function findCartItemById(cartItemId) {
-  const cartItem = await findCartItemById(cartItemId);
+  const cartItem = await CartItem.findById(cartItemId).populate("product");
 
   if (cartItem) {
     return cartItem;

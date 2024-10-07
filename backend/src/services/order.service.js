@@ -1,6 +1,7 @@
 const cartService = require("./cart.service");
 const Address = require("../models/address.model");
 const Order = require("../models/order.model");
+const OrderItem = require("../models/orderItems.model");
 
 async function createOrder(user, shippAddress) {
   let address;
@@ -13,7 +14,7 @@ async function createOrder(user, shippAddress) {
     address.user = user;
     await address.save();
 
-    user.addresses.push(address);
+    user.address.push(address);
     await user.save();
   }
 
@@ -21,7 +22,7 @@ async function createOrder(user, shippAddress) {
   const orderItems = [];
 
   for (const item of cart.cartItems) {
-    const orderItem = orderItems({
+    const orderItem = OrderItem({
       price: item.price,
       product: item.product,
       quantity: item.qunatity,
@@ -31,7 +32,7 @@ async function createOrder(user, shippAddress) {
     });
 
     const createdOrderItem = await orderItem.save();
-    orderItem.push(createdOrderItem);
+    orderItems.push(createdOrderItem);
   }
 
   const createdOrder = new Order({
