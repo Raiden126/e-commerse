@@ -40,7 +40,7 @@ const product = {
     { name: "Gray", class: "bg-gray-200", selectedClass: "ring-gray-400" },
     { name: "Black", class: "bg-gray-900", selectedClass: "ring-gray-900" },
   ],
-  sizes: [
+  size: [
     { name: "S", inStock: true },
     { name: "M", inStock: true },
     { name: "L", inStock: true },
@@ -65,7 +65,7 @@ function classNames(...classes) {
 
 export default function ProductDetails() {
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+  const [selectedSize, setSelectedSize] = useState(product.size[2]);
   const navigate = useNavigate();
   const handleAddToCart = () => {
     navigate("/cart");
@@ -165,7 +165,7 @@ export default function ProductDetails() {
 
               <form className="mt-10">
 
-                {/* Sizes */}
+                {/* size */}
                 <div className="mt-10">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-900">Size</h3>
@@ -178,7 +178,7 @@ export default function ProductDetails() {
                       onChange={setSelectedSize}
                       className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
                     >
-                      {product.sizes.map((size) => (
+                      {product.size.map((size) => (
                         <Radio
                           key={size.name}
                           value={size}

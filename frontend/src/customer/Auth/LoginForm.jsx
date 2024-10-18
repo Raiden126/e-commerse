@@ -1,21 +1,22 @@
 import React from 'react'
 import { Button, Grid, TextField } from '@mui/material'
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../../State/Auth/Action';
 
 const LoginForm = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const handleSubmit = (e) => {
         e.preventDefault();
 
         const data = new FormData(e.currentTarget);
 
         const userData = {
-            firstName: data.get("firstName"),
-            lastName: data.get("lastName"),
             email: data.get("email"),
             password: data.get("password")
         }
-
+        dispatch(login(userData));
         console.log('userdata', userData)
     }
   return (

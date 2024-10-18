@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -24,7 +24,7 @@ import {
 import { mens_kurta } from "../../../Data/mens_kurta";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ProductCard from "./ProductCard";
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   FormControl,
   FormControlLabel,
@@ -33,6 +33,8 @@ import {
   RadioGroup,
 } from "@mui/material";
 import { filters, singleFilter } from "./FilterData";
+import { useDispatch } from "react-redux";
+import { findProducts } from "../../../State/Product/Action";
 
 const sortOptions = [
   { name: "Price: Low to High", href: "#", current: false },
@@ -85,38 +87,92 @@ export default function Product() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const param = useParams();
+  const dispatch = useDispatch();
+
+  const decodedQueryString = decodeURIComponent(location.search);
+  const searchParams = new URLSearchParams(decodedQueryString);
+  const colorValue = searchParams.get("color");
+  const sizeValue = searchParams.get("size");
+  const priceValue = searchParams.get("price");
+  const discount = searchParams.get("discount");
+  const pageNumber = searchParams.get("pageNumber");
+  const sortValue = searchParams.get("sort");
+  const stock = searchParams.get("stock");
+  const pageSize = searchParams.get("pageSize");
 
   const handleFilter = (value, sectionId) => {
-    const searchParams = new URLSearchParams(location.search)
+    const searchParams = new URLSearchParams(location.search);
 
     let filterValue = searchParams.getAll(sectionId);
 
-    if(filterValue.length > 0 && filterValue[0].split(",").includes(value)){
-      filterValue = filterValue[0].split(",").filter((item) => item !== value)
+    if (filterValue.length > 0 && filterValue[0].split(",").includes(value)) {
+      filterValue = filterValue[0].split(",").filter((item) => item !== value);
 
-      if(filterValue.length === 0){
+      if (filterValue.length === 0) {
         searchParams.delete(sectionId);
       }
-    }
-    else {
-      filterValue.push(value)
+    } else {
+      filterValue.push(value);
     }
 
-    if(filterValue.length > 0) {
+    if (filterValue.length > 0) {
       searchParams.set(sectionId, filterValue.join(","));
     }
     const query = searchParams.toString();
-    navigate({search: `?${query}`})
-  }
+    navigate({ search: `?${query}` });
+  };
 
   const handleRadioFilterChange = (e, sectionId) => {
-    const searchParams = new URLSearchParams(location.search)
+    const searchParams = new URLSearchParams(location.search);
 
-    searchParams.set(sectionId, e.target.value)
+    searchParams.set(sectionId, e.target.value);
 
     const query = searchParams.toString();
-    navigate({search: `?${query}`})
-  }
+    navigate({ search: `?${query}` });
+  };
+
+  useEffect(() => {
+    let minPrice = 0;
+    let maxPrice = 0;
+    if (priceValue) {
+      const [min, max] = priceValue.split("-").map(Number);
+      minPrice = min || 0;
+      maxPrice = max || 0;
+    }
+
+    const currentPage = pageNumber ? parseInt(pageNumber) : 1;
+
+    const colors = colorValue ? colorValue.split(",") : [];
+    const size = sizeValue ? sizeValue.split(",") : [];
+
+    const data = {
+      category: param.lavelThree,
+      colors: colors.length > 0 ? colors.join(",") : "",
+      size: size.length > 0 ? size.join(",") : "",
+      minPrice,
+      maxPrice,
+      minDiscount: discount ? parseInt(discount) : 0,
+      sort: sortValue || "price_low",
+      pageNumber: currentPage > 0 ? currentPage : 1,
+      pageSize: pageSize ? parseInt(pageSize) : 10,
+      stock: stock === "true" ? true : stock === "false" ? false : null,
+    };
+
+    // console.log("product data", data);
+    dispatch(findProducts(data));
+  }, [
+    param.lavelThree,
+    colorValue,
+    sizeValue,
+    priceValue,
+    discount,
+    pageNumber,
+    sortValue,
+    stock,
+    pageSize,
+    dispatch,
+  ]);
 
   return (
     <div className="bg-white">
@@ -277,7 +333,7 @@ export default function Product() {
                   <FilterListIcon />
                 </div>
                 <form className="hidden lg:block">
-                {filters.map((section) => (
+                  {filters.map((section) => (
                     <Disclosure
                       key={section.id}
                       as="div"
@@ -319,8 +375,10 @@ export default function Product() {
                                 <>
                                   <FormControlLabel
                                     // value="female"
-                                    onChange={(e) => handleRadioFilterChange(e, section.id)}
-                                    value = {option.value}
+                                    onChange={(e) =>
+                                      handleRadioFilterChange(e, section.id)
+                                    }
+                                    value={option.value}
                                     control={<Radio />}
                                     label={option.name}
                                     // label="gender"
@@ -365,7 +423,9 @@ export default function Product() {
                               className="flex items-center"
                             >
                               <input
-                                onChange={() => handleFilter(option.value,section.id)}
+                                onChange={() =>
+                                  handleFilter(option.value, section.id)
+                                }
                                 defaultValue={option.value}
                                 defaultChecked={option.checked}
                                 id={`filter-${section.id}-${optionIdx}`}
@@ -385,7 +445,6 @@ export default function Product() {
                       </DisclosurePanel>
                     </Disclosure>
                   ))}
-                  
                 </form>
               </div>
 
